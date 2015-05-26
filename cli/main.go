@@ -27,6 +27,14 @@ inputloop:
 			switch ev.Key {
 			case termbox.KeyEsc:
 				break inputloop
+			case termbox.KeyArrowLeft:
+				buffer.Move(-1, 0)
+			case termbox.KeyArrowRight:
+				buffer.Move(1, 0)
+			case termbox.KeyArrowUp:
+				buffer.Move(0, -1)
+			case termbox.KeyArrowDown:
+				buffer.Move(0, 1)
 			}
 			switch ev.Ch {
 			case 'q', 'Q':
