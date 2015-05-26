@@ -112,6 +112,10 @@ func Render(b *Buffer) {
 				x++
 			}
 		}
+		for x < w {
+			termbox.SetCell(x, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
+			x++
+		}
 	}
 }
 
