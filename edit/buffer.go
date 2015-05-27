@@ -21,24 +21,23 @@ func NewBuffer() *Buffer {
 }
 
 func (b *Buffer) RegionsChanged() {
-	sort.Sort(byPosition(b.Regions))
-	//TODO: merge regions
-}
+	// fix regions if needed
+	for i := range b.Regions {
+		r := &b.Regions[i]
+		if r.End.Before(r.Start) {
+			r.End = r.Start
+		}
+	}
 
-func (b *Buffer) UpdateRegions() {
+	// ensure that regions are sorted by their position
 	sort.Sort(byPosition(b.Regions))
+
+	// create a region if there is none
 	if len(b.Regions) == 0 {
 		b.Regions = append(b.Regions, Region{})
 	}
-}
 
-func (b *Buffer) Move(dx, dy int) {
-	for i := range b.Regions {
-		r := &b.Regions[i]
-		r.Start.Move(dx, dy)
-		r.End = r.Start
-	}
-	b.UpdateRegions()
+	//TODO: merge regions
 }
 
 func BufferFromFile(filename string) (*Buffer, error) {
@@ -70,19 +69,21 @@ func (r *Region) Contains(c Cursor) bool {
 	return true
 }
 
-type Cursor struct{ Line, Column int }
+func (a *Region) Overlaps(b *Region) bool {
+	return a.Contains(b.Start) || a.Contains(b.End) ||
+		b.Contains(a.Start) || b.Contains(a.Start)
+}
 
-func (a *Cursor) Move(dx, dy int) {
-	a.Line += dy
-	a.Column += dx
-	if a.Column < 0 {
-		a.Line--
-		a.Column = 0
+func (a *Region) Merge(b *Region) {
+	if b.Start.Before(a.Start) {
+		a.Start = b.Start
 	}
-	if a.Line < 0 {
-		a.Line = 0
+	if b.End.After(a.End) {
+		a.End = b.End
 	}
 }
+
+type Cursor struct{ Line, Column int }
 
 func (a Cursor) Before(b Cursor) bool {
 	if a.Line == b.Line {
@@ -96,6 +97,11 @@ func (a Cursor) After(b Cursor) bool {
 		return a.Column > b.Column
 	}
 	return a.Line > b.Line
+}
+
+func (a *Cursor) Offset(dx, dy int) {
+	a.Line += dy
+	a.Column += dx
 }
 
 type byPosition []Region

@@ -28,17 +28,17 @@ inputloop:
 			case termbox.KeyEsc:
 				break inputloop
 			case termbox.KeyArrowLeft:
-				buffer.Move(-1, 0)
+				edit.Move(buffer, -1, 0)
 			case termbox.KeyArrowRight:
-				buffer.Move(1, 0)
+				edit.Move(buffer, 1, 0)
 			case termbox.KeyArrowUp:
-				buffer.Move(0, -1)
+				edit.Move(buffer, 0, -1)
 			case termbox.KeyArrowDown:
-				buffer.Move(0, 1)
-			}
-			switch ev.Ch {
-			case 'q', 'Q':
-				break inputloop
+				edit.Move(buffer, 0, 1)
+			case termbox.KeySpace:
+				edit.Type(buffer, " ")
+			case 0:
+				edit.Type(buffer, string(ev.Ch))
 			}
 		case termbox.EventError:
 			panic(ev.Err)
