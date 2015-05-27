@@ -22,18 +22,18 @@ type Regions struct {
 	Regions []edit.Region
 }
 
-func (r *Regions) Contains(line, column int) bool {	
-	//TODO: optimize
+func (r *Regions) Contains(line, column int) bool {
 	c := edit.Cursor{line, column}
-	for i := range r.Regions {
-		if r.Regions[i].Contains(c) {
-			return true
-		}
+	for r.Index < len(r.Regions) && r.Regions[r.Index].End.Before(c) {
+		r.Index++
 	}
-	return false
+	if r.Index >= len(r.Regions) {
+		return false
+	}
+	return r.Regions[r.Index].Contains(c)
 }
 
-func normal() (fg, bg termbox.Attribute) { return termbox.ColorDefault, termbox.ColorDefault }
+func normal() (fg, bg termbox.Attribute)    { return termbox.ColorDefault, termbox.ColorDefault }
 func highlight() (fg, bg termbox.Attribute) { return termbox.ColorBlack, termbox.ColorWhite }
 
 func Line(b *edit.Buffer, index int, r *Regions) {
@@ -41,7 +41,7 @@ func Line(b *edit.Buffer, index int, r *Regions) {
 	y := index - b.TopLine
 
 	line := b.Lines[index]
-	
+
 	tw := b.TabWidth
 	x, p := 0, 0
 	for p < len(line) && x < w {
@@ -49,7 +49,7 @@ func Line(b *edit.Buffer, index int, r *Regions) {
 		if r.Contains(index, x) {
 			fg, bg = highlight()
 		}
-			
+
 		c, cw := utf8.DecodeRune([]byte(line[p:]))
 		p += cw
 		switch c {
@@ -79,10 +79,10 @@ func Line(b *edit.Buffer, index int, r *Regions) {
 			x++
 		}
 	}
-	
+
 	for x < w {
 		fg, bg := normal()
-		if r.Contains(index, x){
+		if r.Contains(index, x) {
 			fg, bg = highlight()
 		}
 		termbox.SetCell(x, y, ' ', fg, bg)
@@ -90,9 +90,9 @@ func Line(b *edit.Buffer, index int, r *Regions) {
 	}
 }
 
-func Debug(y int, msg string){
+func Debug(y int, msg string) {
 	fg, bg := highlight()
-	
+
 	w, _ := termbox.Size()
 	x := 0
 	for _, c := range msg {
@@ -111,11 +111,11 @@ func Buffer(b *edit.Buffer) {
 	if last > len(b.Lines) {
 		last = len(b.Lines)
 	}
-	
+
 	regions := &Regions{0, b.Regions}
 	for line := b.TopLine; line < last; line++ {
 		Line(b, line, regions)
 	}
-	
+
 	Debug(h-1, fmt.Sprintf("%+v", b.Regions))
 }
