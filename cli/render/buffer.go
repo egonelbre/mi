@@ -1,7 +1,7 @@
 package render
 
 import (
-	"fmt"
+	"log"
 	"unicode/utf8"
 
 	"github.com/loov/mi/edit"
@@ -117,5 +117,5 @@ func Buffer(b *edit.Buffer) {
 		Line(b, line, regions)
 	}
 
-	Debug(h-1, fmt.Sprintf("%+v", b.Regions))
+	log.Printf("%+v", b.Regions)
 }

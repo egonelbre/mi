@@ -37,7 +37,18 @@ func (b *Buffer) RegionsChanged() {
 		b.Regions = append(b.Regions, Region{})
 	}
 
-	//TODO: merge regions
+	regions := []Region{}
+	last := b.Regions[0]
+	for _, r := range b.Regions[1:] {
+		if last.Overlaps(&r) {
+			last.Merge(&r)
+		} else {
+			regions = append(regions, last)
+			last = r
+		}
+	}
+	regions = append(regions, last)
+	b.Regions = regions
 }
 
 func BufferFromFile(filename string) (*Buffer, error) {

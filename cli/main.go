@@ -35,6 +35,12 @@ inputloop:
 				edit.Move(buffer, 0, -1)
 			case termbox.KeyArrowDown:
 				edit.Move(buffer, 0, 1)
+				
+			case termbox.KeyPgup:
+				edit.AddMoveRegion(buffer, -1)
+			case termbox.KeyPgdn:
+				edit.AddMoveRegion(buffer, 1)
+			
 			case termbox.KeySpace:
 				edit.Type(buffer, " ")
 			case 0:
